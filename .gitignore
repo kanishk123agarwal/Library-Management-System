@@ -1,0 +1,83 @@
+# =========================
+# Build Directories
+# =========================
+build/
+cmake-build-*/
+out/
+
+# =========================
+# CMake Generated Files
+# =========================
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+compile_commands.json
+CTestTestfile.cmake
+
+# =========================
+# Executables
+# =========================
+*.out
+*.exe
+*.app
+
+# Linux executables without extension
+LibraryManagementSystem
+
+# =========================
+# Object Files
+# =========================
+*.o
+*.obj
+*.so
+*.a
+*.lib
+*.dll
+*.dylib
+
+# =========================
+# Debug Files
+# =========================
+*.gdb
+*.dSYM/
+
+# =========================
+# SQLite
+# =========================
+
+# Ignore runtime database
+database/library.db
+
+# SQLite temporary files
+*.db-journal
+*.sqlite-journal
+
+# =========================
+# Logs
+# =========================
+*.log
+
+# =========================
+# VS Code
+# =========================
+.vscode/
+
+# =========================
+# CLion / JetBrains
+# =========================
+.idea/
+
+# =========================
+# OS Files
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# Temporary Files
+# =========================
+*.tmp
+*.swp
+*.swo
+*~
