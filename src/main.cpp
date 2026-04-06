@@ -1,8 +1,7 @@
 #include <iostream>
 
-#include "models/Member.h"
-#include "models/Librarian.h"
-#include "models/Book.h"
+#include "factories/UserFactory.h"
+#include "factories/BookFactory.h"
 
 using namespace std;
 
@@ -10,44 +9,35 @@ int main()
 {
     cout << "========== MEMBER TEST ==========\n";
 
-    Member member(
-        1,
-        "Kanishk",
-        "member@gmail.com"
-    );
+    auto member =UserFactory::createUser(UserType::MEMBER,1,"Kanishk","member@gmail.com");
 
-    member.login();
-    member.displayRole();
+    member->login();
+    member->displayRole();
 
-    member.searchBook();
-    member.borrowBook();
-    member.reserveBook();
-    member.returnBook();
+    // member->searchBook();
+    // member->borrowBook();
+    // member->reserveBook();
+    // member->returnBook();
 
     cout << "\n";
 
 
     cout << "========== LIBRARIAN TEST ==========\n";
 
-    Librarian librarian(
-        2,
-        "Admin",
-        "admin@gmail.com"
-    );
+    auto librarian =UserFactory::createUser(UserType::LIBRARIAN,2,"Admin","admin@gmail.com");
 
-    librarian.login();
-    librarian.displayRole();
-
-    librarian.addBook();
-    librarian.updateBook();
-    librarian.removeBook();
+    librarian->login();
+    librarian->displayRole();
+    // librarian->addBook();
+    // librarian->updateBook();
+    // librarian->removeBook();
 
     cout << "\n";
 
 
     cout << "========== BOOK TEST ==========\n";
 
-    Book book(
+    Book book=BookFactory::createBook(
         101,
         "Clean Code",
         "Robert Martin",
@@ -105,8 +95,8 @@ int main()
 
     cout << "========== POLYMORPHISM TEST ==========\n";
 
-    User* user1 = &member;
-    User* user2 = &librarian;
+    User* user1 = member.get();
+    User* user2 = librarian.get();
 
     user1->displayRole();
     user2->displayRole();
@@ -116,8 +106,8 @@ int main()
 
     cout << "========== LOGOUT TEST ==========\n";
 
-    member.logout();
-    librarian.logout();
+    member->logout();
+    librarian->logout();
 
     return 0;
 }

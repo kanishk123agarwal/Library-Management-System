@@ -13,7 +13,7 @@ protected:
 public:
     User(int id,const std::string& name,const std::string& email);
 
-    virtual ~User();
+    virtual ~User()=default;
 
     void login();
     void logout();

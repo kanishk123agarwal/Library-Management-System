@@ -3,7 +3,6 @@
 using namespace std;
 User::User(int id,const string& name,const string& email): userId(id),name(name),email(email){}
 
-User::~User(){}
 
 void User::login()
 {
