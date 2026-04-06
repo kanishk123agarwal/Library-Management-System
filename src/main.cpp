@@ -1,4 +1,10 @@
 #include <iostream>
+#include <memory>
+
+#include "models/Loan.h"
+
+#include "strategies/DailyFineStrategy.h"
+#include "strategies/FlatFineStrategy.h"
 
 #include "factories/UserFactory.h"
 #include "factories/BookFactory.h"
@@ -108,6 +114,21 @@ int main()
 
     member->logout();
     librarian->logout();
+
+
+    cout << "========== LOAN TEST ==========\n";
+
+    std::shared_ptr<IFineStrategy> dailyStrategy = std::make_shared<DailyFineStrategy>(10);
+
+    Loan loan1(5, dailyStrategy);
+
+    std::cout<< "Daily Fine: "<< loan1.calculateFine()<< std::endl;
+
+    std::shared_ptr<IFineStrategy> flatStrategy =std::make_shared<FlatFineStrategy>(100);
+
+    Loan loan2(5, flatStrategy);
+
+    std::cout<< "Flat Fine: "<< loan2.calculateFine()<< std::endl;
 
     return 0;
 }
