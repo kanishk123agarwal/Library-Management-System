@@ -23,6 +23,11 @@ void Member::reserveBook()
     std::cout << "Reserving book...\n";
 }
 
+void Member::update(const std::string& message)
+{
+    std::cout<< "\nNotification for "<< getName()<< "\n"<< message<< "\n";
+}
+
 void Member::displayRole() const
 {
     std::cout << "Role: Member\n";

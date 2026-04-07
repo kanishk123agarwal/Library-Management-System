@@ -2,6 +2,8 @@
 #define BOOK_H
 
 #include <string>
+#include <vector>
+#include "../observers/IObserver.h"
 
 class Book
 {
@@ -11,7 +13,7 @@ private:
     std::string author;
     std::string isbn;
     bool available;
-
+    std::vector<IObserver*> observers;
 public:
     Book(int id,const std::string& title,const std::string& author,const std::string& isbn);
 
@@ -25,6 +27,15 @@ public:
 
     void issue();
     void returnBook();
+
+    void addObserver(IObserver* observer);
+
+    void removeObserver(IObserver* observer);
+
+    void notifyObservers();
+
+    void setAvailable(bool status);
+
 };
 
 #endif

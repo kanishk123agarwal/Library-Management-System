@@ -1,4 +1,6 @@
 #include "Book.h"
+#include <algorithm>
+#include <iostream>
 
 Book::Book(int id,const std::string& title,const std::string& author,const std::string& isbn): bookId(id),title(title),author(author),isbn(isbn),available(true){}
 
@@ -35,4 +37,34 @@ void Book::issue()
 void Book::returnBook()
 {
     available = true;
+}
+
+void Book::addObserver(IObserver* observer)
+{
+    observers.push_back(observer);
+}
+
+void Book::removeObserver(IObserver* observer)
+{
+    observers.erase(std::remove(observers.begin(),observers.end(),observer),observers.end());
+}
+
+void Book::notifyObservers()
+{
+    std::string message ="Book Available:\n" + title;
+
+    for (auto observer : observers)
+    {
+        observer->update(message);
+    }
+}
+
+void Book::setAvailable(bool status)
+{
+    available = status;
+
+    if (available)
+    {
+        notifyObservers();
+    }
 }

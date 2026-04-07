@@ -17,6 +17,11 @@ public:
 
     void login();
     void logout();
+    const std::string& getName() const;
+
+    int getUserId() const;
+
+    const std::string& getEmail() const;
 
     virtual void displayRole() const = 0;
 };

@@ -13,3 +13,18 @@ void User::logout()
 {
     cout << name << " logged out.\n";
 }
+
+const std::string& User::getName() const
+{
+    return name;
+}
+
+int User::getUserId() const
+{
+    return userId;
+}
+
+const std::string& User::getEmail() const
+{
+    return email;
+}
