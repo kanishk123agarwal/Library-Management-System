@@ -1,14 +1,22 @@
 #include "Reservation.h"
 
-Reservation::Reservation(int reservationId,int bookId,int memberId): reservationId(reservationId),bookId(bookId),memberId(memberId){}
+// ============================================================
+// Library Management System — Reservation Implementation
+// ============================================================
 
-
-int Reservation::getBookId() const
+Reservation::Reservation(int reservationId,
+                         int bookId,
+                         int memberId,
+                         const std::string& reserveDate)
+    : reservationId(reservationId)
+    , bookId(bookId)
+    , memberId(memberId)
+    , reserveDate(reserveDate)
 {
-    return bookId;
 }
 
-int Reservation::getMemberId() const
-{
-    return memberId;
-}
+int Reservation::getReservationId() const { return reservationId; }
+int Reservation::getBookId()        const { return bookId;        }
+int Reservation::getMemberId()      const { return memberId;      }
+
+const std::string& Reservation::getReserveDate() const { return reserveDate; }

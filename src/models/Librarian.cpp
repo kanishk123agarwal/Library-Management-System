@@ -1,21 +1,31 @@
 #include "Librarian.h"
 #include <iostream>
 
-Librarian::Librarian(int id,const std::string& name,const std::string& email): User(id, name, email){}
+// ============================================================
+// Library Management System — Librarian Implementation
+// ============================================================
+
+Librarian::Librarian(int id, const std::string& name, const std::string& email)
+    : User(id, name, email)
+{
+}
 
 void Librarian::addBook()
 {
-    std::cout << "Adding book...\n";
+    std::cout << "[Librarian " << getName()
+              << "] Action: Add a new book to the library.\n";
 }
 
 void Librarian::removeBook()
 {
-    std::cout << "Removing book...\n";
+    std::cout << "[Librarian " << getName()
+              << "] Action: Remove a book from the library.\n";
 }
 
 void Librarian::updateBook()
 {
-    std::cout << "Updating book...\n";
+    std::cout << "[Librarian " << getName()
+              << "] Action: Update book details.\n";
 }
 
 void Librarian::displayRole() const

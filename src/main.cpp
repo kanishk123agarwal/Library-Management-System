@@ -1,155 +1,333 @@
+// ============================================================
+//  Library Management System — Main CLI Entry Point
+//  Day 6: Full interactive menu with SQLite persistence
+// ============================================================
+
 #include <iostream>
-#include <memory>
-
-#include "models/Loan.h"
+#include <string>
+#include <limits>
+#ifdef _WIN32
+  #include <io.h>
+#else
+  #include <unistd.h>
+#endif
 #include "core/Library.h"
-#include "models/Book.h"
-#include "models/Member.h"
-#include "models/Reservation.h"
+#include "utils/Constants.h"
 
-#include "strategies/DailyFineStrategy.h"
-#include "strategies/FlatFineStrategy.h"
+// ─── Helpers ─────────────────────────────────────────────────────────────────
 
-#include "factories/UserFactory.h"
-#include "factories/BookFactory.h"
+static void clearScreen()
+{
+#ifdef _WIN32
+    system("cls");
+#else
+    system("clear");
+#endif
+}
 
-using namespace std;
+static void waitForEnter()
+{
+    // Only consume stdin if running interactively (not piped)
+#ifdef _WIN32
+    bool interactive = _isatty(_fileno(stdin)) != 0;
+#else
+    bool interactive = isatty(fileno(stdin)) != 0;
+#endif
+    if (interactive)
+    {
+        std::cout << "\n  Press Enter to continue...";
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    }
+}
+
+static int readInt(const std::string& prompt)
+{
+    int value;
+    std::cout << "  " << prompt;
+    while (!(std::cin >> value))
+    {
+        if (std::cin.eof()) return -1;  // piped input ended
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        std::cout << "  Invalid input. " << prompt;
+    }
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    return value;
+}
+
+static std::string readLine(const std::string& prompt)
+{
+    std::string value;
+    std::cout << "  " << prompt;
+    std::getline(std::cin, value);
+    return value;
+}
+
+static void printHeader(const std::string& title)
+{
+    std::cout << "\n" << Constants::SEPARATOR << "\n";
+    std::cout << "   " << title << "\n";
+    std::cout << Constants::SEPARATOR << "\n";
+}
+
+// ─── Sub-menus ───────────────────────────────────────────────────────────────
+
+void bookMenu(Library& lib)
+{
+    bool back = false;
+    while (!back)
+    {
+        printHeader("BOOK MANAGEMENT");
+        std::cout << "  1. Add Book\n";
+        std::cout << "  2. View All Books\n";
+        std::cout << "  3. Search Book by Title\n";
+        std::cout << "  4. Delete Book\n";
+        std::cout << "  0. Back\n";
+
+        int choice = readInt("Choice: ");
+        if (std::cin.eof() || choice == -1) break;
+
+        switch (choice)
+        {
+            case 1:
+            {
+                printHeader("ADD BOOK");
+                std::string title  = readLine("Title  : ");
+                std::string author = readLine("Author : ");
+                std::string isbn   = readLine("ISBN   : ");
+                lib.addBook(title, author, isbn);
+                waitForEnter();
+                break;
+            }
+            case 2:
+            {
+                printHeader("ALL BOOKS");
+                lib.viewAllBooks();
+                waitForEnter();
+                break;
+            }
+            case 3:
+            {
+                printHeader("SEARCH BOOK");
+                std::string kw = readLine("Keyword: ");
+                lib.searchBook(kw);
+                waitForEnter();
+                break;
+            }
+            case 4:
+            {
+                printHeader("DELETE BOOK");
+                int id = readInt("Book ID: ");
+                lib.deleteBook(id);
+                waitForEnter();
+                break;
+            }
+            case 0:
+                back = true;
+                break;
+            default:
+                std::cout << "  Invalid choice.\n";
+                waitForEnter();
+        }
+    }
+}
+
+void memberMenu(Library& lib)
+{
+    bool back = false;
+    while (!back)
+    {
+        printHeader("MEMBER MANAGEMENT");
+        std::cout << "  1. Register Member\n";
+        std::cout << "  2. View All Members\n";
+        std::cout << "  0. Back\n";
+
+        int choice = readInt("Choice: ");
+        if (std::cin.eof() || choice == -1) break;
+
+        switch (choice)
+        {
+            case 1:
+            {
+                printHeader("REGISTER MEMBER");
+                std::string name  = readLine("Name  : ");
+                std::string email = readLine("Email : ");
+                lib.registerMember(name, email);
+                waitForEnter();
+                break;
+            }
+            case 2:
+            {
+                printHeader("ALL MEMBERS");
+                lib.viewAllMembers();
+                waitForEnter();
+                break;
+            }
+            case 0:
+                back = true;
+                break;
+            default:
+                std::cout << "  Invalid choice.\n";
+                waitForEnter();
+        }
+    }
+}
+
+void loanMenu(Library& lib)
+{
+    bool back = false;
+    while (!back)
+    {
+        printHeader("LOAN MANAGEMENT");
+        std::cout << "  1. Issue Book\n";
+        std::cout << "  2. Return Book\n";
+        std::cout << "  3. View Active Loans\n";
+        std::cout << "  4. Update Loan Due Date\n";
+        std::cout << "  0. Back\n";
+
+        int choice = readInt("Choice: ");
+        if (std::cin.eof() || choice == -1) break;
+
+        switch (choice)
+        {
+            case 1:
+            {
+                printHeader("ISSUE BOOK");
+                lib.viewAllBooks();
+                int bookId   = readInt("Book ID  : ");
+                lib.viewAllMembers();
+                int memberId = readInt("Member ID: ");
+                lib.issueBook(bookId, memberId);
+                waitForEnter();
+                break;
+            }
+            case 2:
+            {
+                printHeader("RETURN BOOK");
+                lib.viewActiveLoans();
+                int loanId = readInt("Loan ID: ");
+                lib.returnBook(loanId);
+                waitForEnter();
+                break;
+            }
+            case 3:
+            {
+                printHeader("ACTIVE LOANS");
+                lib.viewActiveLoans();
+                waitForEnter();
+                break;
+            }
+            case 4:
+            {
+                printHeader("UPDATE DUE DATE");
+                lib.viewActiveLoans();
+                int loanId = readInt("Loan ID: ");
+                std::string newDate = readLine("New Due Date (YYYY-MM-DD): ");
+                lib.updateLoanDueDate(loanId, newDate);
+                waitForEnter();
+                break;
+            }
+            case 0:
+                back = true;
+                break;
+            default:
+                std::cout << "  Invalid choice.\n";
+                waitForEnter();
+        }
+    }
+}
+
+void reservationMenu(Library& lib)
+{
+    bool back = false;
+    while (!back)
+    {
+        printHeader("RESERVATION MANAGEMENT");
+        std::cout << "  1. Reserve a Book\n";
+        std::cout << "  2. View Reservations for a Book\n";
+        std::cout << "  0. Back\n";
+
+        int choice = readInt("Choice: ");
+        if (std::cin.eof() || choice == -1) break;
+
+        switch (choice)
+        {
+            case 1:
+            {
+                printHeader("RESERVE BOOK");
+                lib.viewAllBooks();
+                int bookId   = readInt("Book ID  : ");
+                lib.viewAllMembers();
+                int memberId = readInt("Member ID: ");
+                lib.reserveBook(bookId, memberId);
+                waitForEnter();
+                break;
+            }
+            case 2:
+            {
+                printHeader("VIEW RESERVATIONS");
+                int bookId = readInt("Book ID: ");
+                lib.viewReservations(bookId);
+                waitForEnter();
+                break;
+            }
+            case 0:
+                back = true;
+                break;
+            default:
+                std::cout << "  Invalid choice.\n";
+                waitForEnter();
+        }
+    }
+}
+
+// ─── Main ────────────────────────────────────────────────────────────────────
 
 int main()
 {
-    cout << "========== MEMBER TEST ==========\n";
-
-    auto member = UserFactory::createUser(UserType::MEMBER, 1, "Kanishk", "member@gmail.com");
-
-    member->login();
-    member->displayRole();
-
-    // member->searchBook();
-    // member->borrowBook();
-    // member->reserveBook();
-    // member->returnBook();
-
-    cout << "\n";
-
-    cout << "========== LIBRARIAN TEST ==========\n";
-
-    auto librarian = UserFactory::createUser(UserType::LIBRARIAN, 2, "Admin", "admin@gmail.com");
-
-    librarian->login();
-    librarian->displayRole();
-    // librarian->addBook();
-    // librarian->updateBook();
-    // librarian->removeBook();
-
-    cout << "\n";
-
-    cout << "========== BOOK TEST ==========\n";
-
-    Book book = BookFactory::createBook(
-        101,
-        "Clean Code",
-        "Robert Martin",
-        "9780132350884");
-
-    cout << "Book ID      : " << book.getBookId() << endl;
-    cout << "Title        : " << book.getTitle() << endl;
-    cout << "Author       : " << book.getAuthor() << endl;
-    cout << "ISBN         : " << book.getISBN() << endl;
-
-    cout << "\nAvailability : ";
-
-    if (book.isAvailable())
-    {
-        cout << "Available\n";
-    }
-    else
-    {
-        cout << "Not Available\n";
-    }
-
-    cout << "\nIssuing Book...\n";
-
-    book.issue();
-
-    cout << "Availability : ";
-
-    if (book.isAvailable())
-    {
-        cout << "Available\n";
-    }
-    else
-    {
-        cout << "Not Available\n";
-    }
-
-    cout << "\nReturning Book...\n";
-
-    book.returnBook();
-
-    cout << "Availability : ";
-
-    if (book.isAvailable())
-    {
-        cout << "Available\n";
-    }
-    else
-    {
-        cout << "Not Available\n";
-    }
-
-    cout << "\n";
-
-    cout << "========== POLYMORPHISM TEST ==========\n";
-
-    User *user1 = member.get();
-    User *user2 = librarian.get();
-
-    user1->displayRole();
-    user2->displayRole();
-
-    cout << "\n";
-
-    cout << "========== LOGOUT TEST ==========\n";
-
-    member->logout();
-    librarian->logout();
-
-    cout << "========== LOAN TEST ==========\n";
-
-    std::shared_ptr<IFineStrategy> dailyStrategy = std::make_shared<DailyFineStrategy>(10);
-
-    Loan loan1(5, dailyStrategy);
-
-    std::cout << "Daily Fine: " << loan1.calculateFine() << std::endl;
-
-    std::shared_ptr<IFineStrategy> flatStrategy = std::make_shared<FlatFineStrategy>(100);
-
-    Loan loan2(5, flatStrategy);
-
-    std::cout << "Flat Fine: " << loan2.calculateFine() << std::endl;
-
-    cout << "\n";
-    cout << "========== OBSERVER TEST ==========\n";
-
     Library library;
 
-    auto memberObserver =dynamic_cast<Member *>(member.get());
-
-    if (memberObserver)
+    bool running = true;
+    while (running)
     {
-        library.addBook(&book);
+        clearScreen();
+        printHeader(Constants::APP_TITLE);
 
-        library.addMember(memberObserver);
+        std::cout << "\n";
+        std::cout << "  1. Book Management\n";
+        std::cout << "  2. Member Management\n";
+        std::cout << "  3. Loan Management\n";
+        std::cout << "  4. Reservation Management\n";
+        std::cout << "  0. Exit\n";
+        std::cout << "\n";
 
-        Reservation reservation(1,book.getBookId(),memberObserver->getUserId());
+        int choice = readInt("Choose an option: ");
 
-        library.reserveBook(&book,memberObserver,&reservation);
+        // Handle EOF (e.g., piped input ended)
+        if (std::cin.eof()) break;
 
-        cout << "\nBook Reserved\n";
-
-        cout << "\nReturning Book...\n";
-
-        library.returnBook(&book);
+        switch (choice)
+        {
+            case 1:
+                bookMenu(library);
+                break;
+            case 2:
+                memberMenu(library);
+                break;
+            case 3:
+                loanMenu(library);
+                break;
+            case 4:
+                reservationMenu(library);
+                break;
+            case 0:
+                running = false;
+                std::cout << "\n  Goodbye!\n\n";
+                break;
+            default:
+                std::cout << "  Invalid option. Please try again.\n";
+                waitForEnter();
+        }
     }
 
     return 0;
